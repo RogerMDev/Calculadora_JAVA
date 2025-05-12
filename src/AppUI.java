@@ -1,7 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 
-public class AppUI {
+public class AppUI extends JFrame{
     public static void main(String[] args) {
         // Crear la finestra
         JFrame ventana = new JFrame("Botó d'exemple");
