@@ -6,7 +6,10 @@ public class App {
         
     }
 
-    //JButton[] botons = {AppUI.boto1,AppUI.boto2};
+
+
+
+    
 
 
 
