@@ -12,16 +12,17 @@ public class AppUI {
     private static String operacio = "";
     private static double primerNumero = 0;
     private static boolean esperantSegonNumero = false;
+    private static boolean bloquejat = false;
 
     public static void mostrarFinestra() {
-        JFrame finestra = new JFrame("Calculadora per a la Marina");
+        JFrame finestra = new JFrame("Calculadora Arcade");
         finestra.setSize(520, 450);
         finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         finestra.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
         operacioLabel.setFont(new Font("Consolas", Font.PLAIN, 18));
-        operacioLabel.setForeground(new Color(150, 255, 255)); // Azul clarito neón
+        operacioLabel.setForeground(new Color(255, 0, 255)); // Rosa neón
         operacioLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -30,26 +31,27 @@ public class AppUI {
         pantalleta.setHorizontalAlignment(JTextField.RIGHT);
         pantalleta.setFont(new Font("Consolas", Font.BOLD, 28));
         pantalleta.setText("0.0");
-        pantalleta.setBackground(new Color(36, 36, 48)); // Estilo LCD oscuro
-        pantalleta.setForeground(new Color(0, 255, 255)); // Cyan neón
-        pantalleta.setBorder(BorderFactory.createLineBorder(new Color(0, 255, 255), 2));
+        pantalleta.setBackground(new Color(20, 20, 20));
+        pantalleta.setForeground(new Color(0, 255, 0));
+        pantalleta.setBorder(BorderFactory.createLineBorder(Color.MAGENTA, 3));
 
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
+        finestra.add(operacioLabel, gbc);
+
+        gbc.gridy = 1;
         finestra.add(pantalleta, gbc);
 
-        panellBotons.setBackground(new Color(18, 18, 30)); // Fondo del panel
+        panellBotons.setBackground(new Color(10, 10, 30));
         panellBotons.setBorder(new EmptyBorder(30, 30, 30, 30));
 
         afegirBotonsIFunc();
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridy = 2;
         finestra.add(panellBotons, gbc);
 
-        finestra.getContentPane().setBackground(new Color(18, 18, 30)); // Fondo general
+        finestra.getContentPane().setBackground(new Color(10, 10, 30));
         finestra.setVisible(true);
     }
 
@@ -64,47 +66,25 @@ public class AppUI {
             boto.setCursor(new Cursor(Cursor.HAND_CURSOR));
             boto.setPreferredSize(new Dimension(80, 50));
 
-            // Estilo de botón según tipo
             if ("0123456789".contains(chLlegit)) {
-                boto.setBackground(new Color(0, 191, 255)); // Azul neón claro
+                boto.setBackground(new Color(0, 255, 255));
             } else if ("+-*/".contains(chLlegit)) {
-                boto.setBackground(new Color(255, 105, 180)); // Rosa neón
+                boto.setBackground(new Color(255, 0, 255));
             } else if (chLlegit.equals("=")) {
-                boto.setBackground(new Color(255, 255, 0)); // Amarillo brillante
+                boto.setBackground(Color.YELLOW);
                 boto.setForeground(Color.BLACK);
             } else if (chLlegit.equals("AC") || chLlegit.equals("DEL")) {
-                boto.setBackground(new Color(255, 69, 0)); // Naranja fuerte
+                boto.setBackground(new Color(255, 69, 0));
             } else {
-                boto.setBackground(new Color(186, 85, 211)); // Lila neón
+                boto.setBackground(new Color(186, 85, 211));
             }
 
-            boto.setBorder(BorderFactory.createLineBorder(Color.MAGENTA, 2));
-
-            // Hover effect
-            boto.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    boto.setBackground(boto.getBackground().brighter());
-                }
-
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    if ("0123456789".contains(chLlegit)) {
-                        boto.setBackground(new Color(0, 191, 255));
-                    } else if ("+-*/".contains(chLlegit)) {
-                        boto.setBackground(new Color(255, 105, 180));
-                    } else if (chLlegit.equals("=")) {
-                        boto.setBackground(new Color(255, 255, 0));
-                    } else if (chLlegit.equals("AC") || chLlegit.equals("DEL")) {
-                        boto.setBackground(new Color(255, 69, 0));
-                    } else {
-                        boto.setBackground(new Color(186, 85, 211));
-                    }
-                }
-            });
-
+            boto.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
             panellBotons.add(boto);
 
             if ("0123456789".contains(chLlegit)) {
                 boto.addActionListener(e -> {
+                    if (bloquejat) return;
                     if (esperantSegonNumero) {
                         pantalleta.setText("");
                         esperantSegonNumero = false;
@@ -117,10 +97,9 @@ public class AppUI {
 
             } else if (chLlegit.equals(".")) {
                 boto.addActionListener(e -> {
-                    if (pantalleta.getText().equals("0.0")) {
-                        return;
-                    }
-                    else if (!puntUtilitzat) {
+                    if (bloquejat) return;
+                    if (pantalleta.getText().equals("0.0")) return;
+                    if (!puntUtilitzat) {
                         pantalleta.setText(pantalleta.getText() + ".");
                         puntUtilitzat = true;
                     }
@@ -128,6 +107,7 @@ public class AppUI {
 
             } else if (chLlegit.equals("AC")) {
                 boto.addActionListener(e -> {
+                    if (bloquejat) return;
                     pantalleta.setText("0.0");
                     operacioLabel.setText("");
                     puntUtilitzat = false;
@@ -138,19 +118,17 @@ public class AppUI {
 
             } else if (chLlegit.equals("DEL")) {
                 boto.addActionListener(e -> {
+                    if (bloquejat) return;
                     String textActual = pantalleta.getText();
                     if (!textActual.isEmpty() && !textActual.equals("0.0")) {
                         textActual = textActual.substring(0, textActual.length() - 1);
-                        if (textActual.isEmpty()) {
-                            pantalleta.setText("0.0");
-                        } else {
-                            pantalleta.setText(textActual);
-                        }
+                        pantalleta.setText(textActual.isEmpty() ? "0.0" : textActual);
                     }
                 });
 
             } else if ("+-*/".contains(chLlegit)) {
                 boto.addActionListener(e -> {
+                    if (bloquejat) return;
                     try {
                         primerNumero = Double.parseDouble(pantalleta.getText());
                         operacio = chLlegit;
@@ -163,34 +141,33 @@ public class AppUI {
 
             } else if (chLlegit.equals("=")) {
                 boto.addActionListener(e -> {
+                    if (bloquejat) return;
                     try {
                         double segonNumero = Double.parseDouble(pantalleta.getText());
-                        
-                        // Si no hi ha cap operació, cuan es prem el signe igual es manté el primer nombre
+
                         if (operacio.isEmpty()) {
                             pantalleta.setText(String.valueOf(segonNumero));
                             return;
                         }
-                        double resultat = 0;
 
-                        if (operacio.equals("+")) {
-                            resultat = primerNumero + segonNumero;
-                        } else if (operacio.equals("-")) {
-                            resultat = primerNumero - segonNumero;
-                        } else if (operacio.equals("*")) {
-                            resultat = primerNumero * segonNumero;
-                        } else if (operacio.equals("/")) {
-                            if (segonNumero == 0) {
-                                pantalleta.setText("Error: Div per 0");
-                                return;
+                        double resultat = switch (operacio) {
+                            case "+" -> primerNumero + segonNumero;
+                            case "-" -> primerNumero - segonNumero;
+                            case "*" -> primerNumero * segonNumero;
+                            case "/" -> {
+                                if (segonNumero == 0) {
+                                    pantalleta.setText("Error: Div per 0");
+                                    yield 0;
+                                }
+                                yield primerNumero / segonNumero;
                             }
-                            resultat = primerNumero / segonNumero;
-                        } else {
-                            pantalleta.setText("Error");
-                            return;
-                        }
+                            default -> {
+                                pantalleta.setText("Error");
+                                yield 0;
+                            }
+                        };
 
-                        pantalleta.setText(String.valueOf(resultat));
+                        mostrarResultatAmbDial(String.valueOf(resultat));
                         operacioLabel.setText("");
                         operacio = "";
                         puntUtilitzat = false;
@@ -202,5 +179,52 @@ public class AppUI {
                 });
             }
         }
+    }
+
+    // 🎰 EFECTO DIAL AL MOSTRAR RESULTADO
+private static void mostrarResultatAmbDial(String resultatFinal) {
+    bloquejat = true;
+
+    // Creamos un array para mostrar el progreso de cada dígito
+    char[] resultatChars = resultatFinal.toCharArray();
+    char[] display = new char[resultatChars.length];
+
+    for (int i = 0; i < display.length; i++) {
+        display[i] = '0'; // empieza mostrando ceros
+    }
+
+    pantalleta.setText(String.valueOf(display));
+
+    Timer timer = new Timer(30, null);
+    int[] ticksPorDigito = new int[resultatChars.length]; // cuántos ticks lleva cada dígito
+    int[] ticksMaximos = new int[resultatChars.length];   // cuántos ticks necesita cada uno
+
+    // Configura una cantidad aleatoria de "vueltas" por dígito
+    for (int i = 0; i < resultatChars.length; i++) {
+        ticksMaximos[i] = 10 + (int)(Math.random() * 10); // cada dígito tarda diferente
+    }
+
+    timer.addActionListener(e -> {
+        boolean terminado = true;
+
+        for (int i = 0; i < resultatChars.length; i++) {
+            if (ticksPorDigito[i] < ticksMaximos[i]) {
+                display[i] = (char) ('0' + (int)(Math.random() * 10));
+                ticksPorDigito[i]++;
+                terminado = false;
+            } else {
+                display[i] = resultatChars[i];
+            }
+        }
+
+        pantalleta.setText(String.valueOf(display));
+
+        if (terminado) {
+            timer.stop();
+            bloquejat = false;
+        }
+    });
+
+    timer.start();
     }
 }
