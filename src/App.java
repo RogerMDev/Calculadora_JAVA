@@ -5,9 +5,5 @@ public class App {
         AppUI.mostrarFinestra();
         
     }
-
-    //JButton[] botons = {AppUI.boto1,AppUI.boto2};
-
-
-
+    
 }
