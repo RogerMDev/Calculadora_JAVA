@@ -27,7 +27,6 @@ public class AppUI {
     private static final Color GREEN_BUTTON = new Color(52, 207, 93);
     private static final Color ORANGE_BUTTON = new Color(255, 128, 0);
     private static final Color RED_BUTTON = new Color(255, 69, 58);
-    private static final Color PURPLE_BUTTON = new Color(175, 82, 222);
     private static final Color DARK_BLUE = new Color(30, 144, 255);
     private static final Color TEXT_WHITE = new Color(255, 255, 255);
     private static final Color TEXT_BLACK = new Color(0, 0, 0);
