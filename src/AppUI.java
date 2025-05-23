@@ -31,7 +31,6 @@ public class AppUI {
     private static final Color TEXT_WHITE = new Color(255, 255, 255);
     private static final Color TEXT_BLACK = new Color(0, 0, 0);
     private static final Color DARK_GREEN_BUTTON = new Color(45,106,79);
-    private static final Color test = new Color(26,115,232);
 
     private static boolean puntUtilitzat = false;
     private static String operacio = "";
