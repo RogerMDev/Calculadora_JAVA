@@ -41,6 +41,7 @@ public class AppUI {
     private static boolean operacioRepetida = false;
     private static String ultimaOperacio = "";
     private static double ultimoResultado = 0; // Variable para guardar el último resultado
+    private static boolean mostrarNuevoNumero = false;
 
     // Botón personalizado estilo arcade con efectos de glow
     static class RoundedButton extends JButton {
@@ -99,7 +100,7 @@ public class AppUI {
         JFrame finestra = new JFrame("CALCULATOR");
         finestra.setSize(400, 650);
         finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        finestra.setResizable(false);
+        finestra.setResizable(true);
         finestra.getContentPane().setBackground(ARCADE_BG);
         finestra.setLayout(new BorderLayout());
 
@@ -123,8 +124,10 @@ public class AppUI {
         finestra.add(mainPanel);
         finestra.setLocationRelativeTo(null);
         finestra.setVisible(true);
+        finestra.setFocusable(true);
+        finestra.requestFocusInWindow();
     }
-
+    
     private static JPanel createDisplayPanel() {
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
@@ -272,7 +275,7 @@ public class AppUI {
             if (ch.equals("0")) {
                 b.setPreferredSize(new Dimension(174, 75)); // Ancho doble + gap ajustado
             }
-
+            
             panellBotons.add(b);
 
             // Agregar funcionalidad
@@ -400,6 +403,7 @@ public class AppUI {
                             
                             historialModel.addElement(formatNumero(primerNumero) + " " + displayOp + " " + formatNumero(segonNumero) + " = " + formatNumero(res));
                             pantalla.setText(formatNumero(res));
+                            mostrarNuevoNumero = true;
 
                             // Guardar el resultado en la variable Ans
                             ultimoResultado = res;
@@ -416,7 +420,12 @@ public class AppUI {
                     }
                     default -> {
                         // Números
-                        if (esperantSegonNumero) {
+                        if (bloquejat) return;
+
+                        if (mostrarNuevoNumero){
+                            pantalla.setText("");
+                            mostrarNuevoNumero = false;
+                        }else if (esperantSegonNumero) {
                             pantalla.setText("");
                             esperantSegonNumero = false;
                             puntUtilitzat = false;
@@ -425,7 +434,6 @@ public class AppUI {
                         }
                         pantalla.setText(pantalla.getText() + ch);
                     }
-
                 }
             });
         }
@@ -446,7 +454,7 @@ public class AppUI {
 
     private static void cargarOperacionDelHistorial(String operacionHistorial) {
         try {
-            
+
             // Manejar operaciones normales
             String[] partes = operacionHistorial.split(" = ");
             if (partes.length == 2) {
