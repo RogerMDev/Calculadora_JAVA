@@ -1,7 +1,8 @@
+import javax.swing.SwingUtilities;
 
 public class App {
     
     public static void main(String[] args) {
-        AppUI.mostrarFinestra();
+        SwingUtilities.invokeLater(() -> AppUI.mostrarFinestra());
     }
 }

@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -94,15 +96,18 @@ public class AppUI {
         }
     }
 
+    // Variable global para mantener referencia a la ventana
+    private static JFrame ventanaCalculadora;
+    
     public static void mostrarFinestra() {
         // Usar el Look and Feel por defecto del sistema
 
-        JFrame finestra = new JFrame("CALCULATOR");
-        finestra.setSize(400, 650);
-        finestra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        finestra.setResizable(true);
-        finestra.getContentPane().setBackground(ARCADE_BG);
-        finestra.setLayout(new BorderLayout());
+        ventanaCalculadora = new JFrame("CALCULATOR");
+        ventanaCalculadora.setSize(400, 650);
+        ventanaCalculadora.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventanaCalculadora.setResizable(true);
+        ventanaCalculadora.getContentPane().setBackground(ARCADE_BG);
+        ventanaCalculadora.setLayout(new BorderLayout());
 
         // Panel principal con padding
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -121,11 +126,247 @@ public class AppUI {
         JPanel historialPanel = createHistorialPanel();
         mainPanel.add(historialPanel, BorderLayout.SOUTH);
 
-        finestra.add(mainPanel);
-        finestra.setLocationRelativeTo(null);
-        finestra.setVisible(true);
-        finestra.setFocusable(true);
-        finestra.requestFocusInWindow();
+        ventanaCalculadora.add(mainPanel);
+        ventanaCalculadora.setLocationRelativeTo(null);
+        ventanaCalculadora.setVisible(true);
+        ventanaCalculadora.setFocusable(true);
+        ventanaCalculadora.requestFocusInWindow();
+        
+        // Agregar KeyListener para soporte de teclado
+        ventanaCalculadora.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPress(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // No necesario
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                // No necesario
+            }
+        });
+        
+        // Asegurar que la ventana tenga el foco para recibir eventos de teclado
+        ventanaCalculadora.setFocusable(true);
+        ventanaCalculadora.requestFocus();
+    }
+    
+    private static void handleKeyPress(KeyEvent e) {
+        if (bloquejat) return;
+        
+        char keyChar = e.getKeyChar();
+        int keyCode = e.getKeyCode();
+        
+        // Mapear teclas a acciones
+        String action = "";
+        
+        // Números 0-9
+        if (keyChar >= '0' && keyChar <= '9') {
+            action = String.valueOf(keyChar);
+        }
+        // Operadores
+        else if (keyChar == '+') {
+            action = "+";
+        }
+        else if (keyChar == '-') {
+            action = "-";
+        }
+        else if (keyChar == '*') {
+            action = "×";
+        }
+        else if (keyChar == '/') {
+            action = "÷";
+        }
+        // Punto decimal (coma o punto)
+        else if (keyChar == '.' || keyChar == ',') {
+            action = ".";
+        }
+        // Enter para igual
+        else if (keyCode == KeyEvent.VK_ENTER) {
+            action = "=";
+        }
+        // Escape para limpiar
+        else if (keyCode == KeyEvent.VK_ESCAPE) {
+            action = "C";
+        }
+        // Backspace para borrar
+        else if (keyCode == KeyEvent.VK_BACK_SPACE) {
+            action = "←";
+        }
+        
+        // Ejecutar la acción si se encontró una tecla válida
+        if (!action.isEmpty()) {
+            executeAction(action);
+        }
+    }
+    
+    private static void executeAction(String ch) {
+        if (bloquejat) return;
+        
+        // Convertir símbolos modernos a operaciones
+        String operation = ch;
+        if (ch.equals("÷")) operation = "/";
+        if (ch.equals("×")) operation = "*";
+        if (ch.equals("C")) operation = "AC";
+        if (ch.equals("←")) operation = "DEL";
+        
+        switch (operation) {
+            case "AC" -> {
+                pantalla.setText("0");
+                operacioLabel.setText("");
+                puntUtilitzat = false;
+                operacio = "";
+                primerNumero = 0;
+                esperantSegonNumero = false;
+                // Restaurar el foco a la ventana después de limpiar
+                if (ventanaCalculadora != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        ventanaCalculadora.requestFocus();
+                        ventanaCalculadora.requestFocusInWindow();
+                    });
+                }
+            }
+            case "DEL" -> {
+                String texto = pantalla.getText();
+                if (!texto.isEmpty() && !texto.equals("0") && !texto.equals("Error")) {
+                    if (texto.length() == 1) {
+                        pantalla.setText("0");
+                        puntUtilitzat = false;
+                    } else {
+                        String nuevoTexto = texto.substring(0, texto.length() - 1);
+                        pantalla.setText(nuevoTexto);
+                        // Verificar si después de borrar todavía hay punto decimal
+                        puntUtilitzat = nuevoTexto.contains(".");
+                    }
+                }
+            }
+            case "." -> {
+                if (!puntUtilitzat) {
+                    if (esperantSegonNumero) {
+                        pantalla.setText("0.");
+                        esperantSegonNumero = false;
+                    } else if (pantalla.getText().equals("0")) {
+                        pantalla.setText("0.");
+                    } else {
+                        pantalla.setText(pantalla.getText() + ".");
+                    }
+                    puntUtilitzat = true;
+                }
+            }
+            case "±" -> {
+                try {
+                    double v = Double.parseDouble(pantalla.getText()) * -1;
+                    pantalla.setText(formatNumero(v));
+                } catch (NumberFormatException ex) {
+                    pantalla.setText("Error");
+                }
+            }
+            case "Ans" -> {
+                // Insertar el último resultado guardado
+                if (esperantSegonNumero) {
+                    pantalla.setText("");
+                    esperantSegonNumero = false;
+                    puntUtilitzat = false;
+                } else if (pantalla.getText().equals("0")) {
+                    pantalla.setText("");
+                }
+                
+                String resultadoStr = formatNumero(ultimoResultado);
+                pantalla.setText(pantalla.getText() + resultadoStr);
+                
+                // Verificar si el resultado contiene punto decimal
+                if (resultadoStr.contains(".")) {
+                    puntUtilitzat = true;
+                }
+            }
+            case "+", "-", "*", "/" -> {
+                try {
+                    primerNumero = Double.parseDouble(pantalla.getText());
+                    operacio = operation;
+                    ultimaOperacio = operation;
+                    esperantSegonNumero = true;
+                    puntUtilitzat = false;
+                    
+                    // Mostrar operación con símbolos modernos
+                    String displayOp = operation;
+                    if (operation.equals("/")) displayOp = "÷";
+                    if (operation.equals("*")) displayOp = "×";
+                    
+                    operacioLabel.setText(formatNumero(primerNumero) + " " + displayOp);
+                } catch (NumberFormatException ex) {
+                    pantalla.setText("Error");
+                }
+            }
+            case "=" -> {
+                try {
+                    double segonNumero;
+                    String op = operacio.isEmpty() ? ultimaOperacio : operacio;
+                    if (op.isEmpty()) return;
+
+                    if (operacio.isEmpty()) {
+                        segonNumero = segonNumeroAnterior;
+                    } else {
+                        segonNumero = Double.parseDouble(pantalla.getText());
+                        segonNumeroAnterior = segonNumero;
+                        operacioRepetida = true;
+                    }
+
+                    double res = switch (op) {
+                        case "+" -> primerNumero + segonNumero;
+                        case "-" -> primerNumero - segonNumero;
+                        case "*" -> primerNumero * segonNumero;
+                        case "/" -> (segonNumero == 0) ? Double.NaN : primerNumero / segonNumero;
+                        default -> Double.NaN;
+                    };
+
+                    if (Double.isNaN(res)) {
+                        pantalla.setText("Error");
+                        return;
+                    }
+
+                    // Mostrar en historial con símbolos modernos
+                    String displayOp = op;
+                    if (op.equals("/")) displayOp = "÷";
+                    if (op.equals("*")) displayOp = "×";
+                    
+                    historialModel.addElement(formatNumero(primerNumero) + " " + displayOp + " " + formatNumero(segonNumero) + " = " + formatNumero(res));
+                    pantalla.setText(formatNumero(res));
+                    mostrarNuevoNumero = true;
+
+                    // Guardar el resultado en la variable Ans
+                    ultimoResultado = res;
+
+                    primerNumero = res;
+                    operacio = "";
+                    operacioLabel.setText("");
+                    puntUtilitzat = false;
+                    esperantSegonNumero = false;
+
+                } catch (NumberFormatException ex) {
+                    pantalla.setText("Error");
+                }
+            }
+            default -> {
+                // Números
+                if (bloquejat) return;
+
+                if (mostrarNuevoNumero){
+                    pantalla.setText("");
+                    mostrarNuevoNumero = false;
+                }else if (esperantSegonNumero) {
+                    pantalla.setText("");
+                    esperantSegonNumero = false;
+                    puntUtilitzat = false;
+                } else if (pantalla.getText().equals("0")) {
+                    pantalla.setText("");
+                }
+                pantalla.setText(pantalla.getText() + ch);
+            }
+        }
     }
     
     private static JPanel createDisplayPanel() {
@@ -221,7 +462,16 @@ public class AppUI {
         botoClr.setForeground(TEXT_WHITE);
         botoClr.setFont(new Font("Courier New", Font.BOLD, 12));
         botoClr.setPreferredSize(new Dimension(80, 35));
-        botoClr.addActionListener(e -> historialModel.removeAllElements());
+        botoClr.addActionListener(e -> {
+            historialModel.removeAllElements();
+            // Restaurar el foco después de limpiar historial
+            if (ventanaCalculadora != null) {
+                SwingUtilities.invokeLater(() -> {
+                    ventanaCalculadora.requestFocus();
+                    ventanaCalculadora.requestFocusInWindow();
+                });
+            }
+        });
         historialPanel.add(botoClr, BorderLayout.EAST);
 
         return historialPanel;
@@ -280,160 +530,13 @@ public class AppUI {
 
             // Agregar funcionalidad
             b.addActionListener(e -> {
-                if (bloquejat) return;
-                
-                // Convertir símbolos modernos a operaciones
-                String operation = ch;
-                if (ch.equals("÷")) operation = "/";
-                if (ch.equals("×")) operation = "*";
-                if (ch.equals("C")) operation = "AC";
-                if (ch.equals("←")) operation = "DEL";
-                
-                switch (operation) {
-                    case "AC" -> {
-                        pantalla.setText("0");
-                        operacioLabel.setText("");
-                        puntUtilitzat = false;
-                        operacio = "";
-                        primerNumero = 0;
-                        esperantSegonNumero = false;
-                    }
-                    case "DEL" -> {
-                        String texto = pantalla.getText();
-                        if (!texto.isEmpty() && !texto.equals("0") && !texto.equals("Error")) {
-                            if (texto.length() == 1) {
-                                pantalla.setText("0");
-                                puntUtilitzat = false;
-                            } else {
-                                String nuevoTexto = texto.substring(0, texto.length() - 1);
-                                pantalla.setText(nuevoTexto);
-                                // Verificar si después de borrar todavía hay punto decimal
-                                puntUtilitzat = nuevoTexto.contains(".");
-                            }
-                        }
-                    }
-                    case "." -> {
-                        if (!puntUtilitzat) {
-                            if (esperantSegonNumero) {
-                                pantalla.setText("0.");
-                                esperantSegonNumero = false;
-                            } else if (pantalla.getText().equals("0")) {
-                                pantalla.setText("0.");
-                            } else {
-                                pantalla.setText(pantalla.getText() + ".");
-                            }
-                            puntUtilitzat = true;
-                        }
-                    }
-                    case "±" -> {
-                        try {
-                            double v = Double.parseDouble(pantalla.getText()) * -1;
-                            pantalla.setText(formatNumero(v));
-                        } catch (NumberFormatException ex) {
-                            pantalla.setText("Error");
-                        }
-                    }
-                    case "Ans" -> {
-                        // Insertar el último resultado guardado
-                        if (esperantSegonNumero) {
-                            pantalla.setText("");
-                            esperantSegonNumero = false;
-                            puntUtilitzat = false;
-                        } else if (pantalla.getText().equals("0")) {
-                            pantalla.setText("");
-                        }
-                        
-                        String resultadoStr = formatNumero(ultimoResultado);
-                        pantalla.setText(pantalla.getText() + resultadoStr);
-                        
-                        // Verificar si el resultado contiene punto decimal
-                        if (resultadoStr.contains(".")) {
-                            puntUtilitzat = true;
-                        }
-                    }
-                    case "+", "-", "*", "/" -> {
-                        try {
-                            primerNumero = Double.parseDouble(pantalla.getText());
-                            operacio = operation;
-                            ultimaOperacio = operation;
-                            esperantSegonNumero = true;
-                            puntUtilitzat = false;
-                            
-                            // Mostrar operación con símbolos modernos
-                            String displayOp = operation;
-                            if (operation.equals("/")) displayOp = "÷";
-                            if (operation.equals("*")) displayOp = "×";
-                            
-                            operacioLabel.setText(formatNumero(primerNumero) + " " + displayOp);
-                        } catch (NumberFormatException ex) {
-                            pantalla.setText("Error");
-                        }
-                    }
-                    case "=" -> {
-                        try {
-                            double segonNumero;
-                            String op = operacio.isEmpty() ? ultimaOperacio : operacio;
-                            if (op.isEmpty()) return;
-
-                            if (operacio.isEmpty()) {
-                                segonNumero = segonNumeroAnterior;
-                            } else {
-                                segonNumero = Double.parseDouble(pantalla.getText());
-                                segonNumeroAnterior = segonNumero;
-                                operacioRepetida = true;
-                            }
-
-                            double res = switch (op) {
-                                case "+" -> primerNumero + segonNumero;
-                                case "-" -> primerNumero - segonNumero;
-                                case "*" -> primerNumero * segonNumero;
-                                case "/" -> (segonNumero == 0) ? Double.NaN : primerNumero / segonNumero;
-                                default -> Double.NaN;
-                            };
-
-                            if (Double.isNaN(res)) {
-                                pantalla.setText("Error");
-                                return;
-                            }
-
-                            // Mostrar en historial con símbolos modernos
-                            String displayOp = op;
-                            if (op.equals("/")) displayOp = "÷";
-                            if (op.equals("*")) displayOp = "×";
-                            
-                            historialModel.addElement(formatNumero(primerNumero) + " " + displayOp + " " + formatNumero(segonNumero) + " = " + formatNumero(res));
-                            pantalla.setText(formatNumero(res));
-                            mostrarNuevoNumero = true;
-
-                            // Guardar el resultado en la variable Ans
-                            ultimoResultado = res;
-
-                            primerNumero = res;
-                            operacio = "";
-                            operacioLabel.setText("");
-                            puntUtilitzat = false;
-                            esperantSegonNumero = false;
-
-                        } catch (NumberFormatException ex) {
-                            pantalla.setText("Error");
-                        }
-                    }
-                    default -> {
-                        // Números
-                        if (bloquejat) return;
-
-                        if (mostrarNuevoNumero){
-                            pantalla.setText("");
-                            mostrarNuevoNumero = false;
-                        }else if (esperantSegonNumero) {
-                            pantalla.setText("");
-                            esperantSegonNumero = false;
-                            puntUtilitzat = false;
-                        } else if (pantalla.getText().equals("0")) {
-                            pantalla.setText("");
-                        }
-                        pantalla.setText(pantalla.getText() + ch);
-                    }
+                executeAction(ch);
+                // Restaurar el foco después de cualquier acción de botón
+                if (ventanaCalculadora != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        ventanaCalculadora.requestFocus();
+                        ventanaCalculadora.requestFocusInWindow();
+                    });
                 }
             });
         }
@@ -521,9 +624,5 @@ public class AppUI {
         bloquejat = false;
         operacioLabel.setText("");
         // No resetear ultimoResultado para mantener el valor de Ans
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> mostrarFinestra());
     }
 }
