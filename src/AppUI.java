@@ -20,7 +20,7 @@ public class AppUI {
         "0", ".", "Ans", "="
     };
 
-    // Colores del tema arcade retro
+    // Colors del tema arcade retro
     private static final Color ARCADE_BG = new Color(25, 30, 45);
     private static final Color DISPLAY_BG = new Color(15, 20, 35);
     private static final Color CYAN_GLOW = new Color(0, 255, 255);
@@ -42,10 +42,10 @@ public class AppUI {
     private static double segonNumeroAnterior = 0;
     private static boolean operacioRepetida = false;
     private static String ultimaOperacio = "";
-    private static double ultimoResultado = 0; // Variable para guardar el último resultado
-    private static boolean mostrarNuevoNumero = false;
+    private static double ultimoResultat = 0; // Variable per guardar l'últim resultat
+    private static boolean mostrarNouNombre = false;
 
-    // Botón personalizado estilo arcade con efectos de glow
+    // Botó personalitzat estil arcade amb efectes de brillantor
     static class RoundedButton extends JButton {
         private Color backgroundColor;
         private Color glowColor;
@@ -55,7 +55,7 @@ public class AppUI {
             setContentAreaFilled(false);
             setFocusPainted(false);
             setBorderPainted(false);
-            setFont(new Font("Courier New", Font.BOLD, 20)); // Fuente pixelada
+            setFont(new Font("Courier New", Font.BOLD, 20)); // Font pixelada
             setCursor(new Cursor(Cursor.HAND_CURSOR));
         }
 
@@ -69,9 +69,9 @@ public class AppUI {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
-            // Efecto de glow cuando está presionado o hover
+            // Efecte de brillantor quan està premut o en hover
             if (getModel().isPressed() || getModel().isRollover()) {
-                // Glow exterior
+                // Brillantor exterior
                 g2.setColor(new Color(glowColor.getRed(), glowColor.getGreen(), glowColor.getBlue(), 100));
                 g2.fillRoundRect(-2, -2, getWidth() + 4, getHeight() + 4, 25, 25);
             }
@@ -81,7 +81,7 @@ public class AppUI {
             g2.setColor(bgColor);
             g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 20, 20);
             
-            // Borde brillante
+            // Vora brillant
             g2.setColor(glowColor);
             g2.setStroke(new BasicStroke(2));
             g2.drawRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 20, 20);
@@ -96,12 +96,10 @@ public class AppUI {
         }
     }
 
-    // Variable global para mantener referencia a la ventana
+    // Variable global per mantenir referència a la finestra
     private static JFrame ventanaCalculadora;
     
     public static void mostrarFinestra() {
-        // Usar el Look and Feel por defecto del sistema
-
         ventanaCalculadora = new JFrame("CALCULATOR");
         ventanaCalculadora.setSize(400, 650);
         ventanaCalculadora.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -109,20 +107,20 @@ public class AppUI {
         ventanaCalculadora.getContentPane().setBackground(ARCADE_BG);
         ventanaCalculadora.setLayout(new BorderLayout());
 
-        // Panel principal con padding
+        // Panell principal amb padding
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(ARCADE_BG);
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Panel de la pantalla
+        // Panell de la pantalla
         JPanel displayPanel = createDisplayPanel();
         mainPanel.add(displayPanel, BorderLayout.NORTH);
 
-        // Panel de botones
+        // Panell de botons
         JPanel buttonPanel = createButtonPanel();
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
 
-        // Panel de historial
+        // Panell d'historial
         JPanel historialPanel = createHistorialPanel();
         mainPanel.add(historialPanel, BorderLayout.SOUTH);
 
@@ -132,7 +130,7 @@ public class AppUI {
         ventanaCalculadora.setFocusable(true);
         ventanaCalculadora.requestFocusInWindow();
         
-        // Agregar KeyListener para soporte de teclado
+        // Afegir KeyListener per suport de teclat
         ventanaCalculadora.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -141,16 +139,16 @@ public class AppUI {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                // No necesario
+                // No necessari
             }
 
             @Override
             public void keyTyped(KeyEvent e) {
-                // No necesario
+                // No necessari
             }
         });
         
-        // Asegurar que la ventana tenga el foco para recibir eventos de teclado
+        // Assegurar que la finestra tingui el focus per rebre esdeveniments de teclat
         ventanaCalculadora.setFocusable(true);
         ventanaCalculadora.requestFocus();
     }
@@ -161,14 +159,14 @@ public class AppUI {
         char keyChar = e.getKeyChar();
         int keyCode = e.getKeyCode();
         
-        // Mapear teclas a acciones
+        // Mapejar tecles a accions
         String action = "";
         
         // Números 0-9
         if (keyChar >= '0' && keyChar <= '9') {
             action = String.valueOf(keyChar);
         }
-        // Operadores
+        // Operadors
         else if (keyChar == '+') {
             action = "+";
         }
@@ -181,24 +179,24 @@ public class AppUI {
         else if (keyChar == '/') {
             action = "÷";
         }
-        // Punto decimal (coma o punto)
+        // Punt decimal (coma o punt)
         else if (keyChar == '.' || keyChar == ',') {
             action = ".";
         }
-        // Enter para igual
+        // Enter per igual
         else if (keyCode == KeyEvent.VK_ENTER) {
             action = "=";
         }
-        // Escape para limpiar
+        // Escape per netejar
         else if (keyCode == KeyEvent.VK_ESCAPE) {
             action = "C";
         }
-        // Backspace para borrar
+        // Backspace per esborrar
         else if (keyCode == KeyEvent.VK_BACK_SPACE) {
             action = "←";
         }
         
-        // Ejecutar la acción si se encontró una tecla válida
+        // Executar l'acció si s'ha trobat una tecla vàlida
         if (!action.isEmpty()) {
             executeAction(action);
         }
@@ -207,7 +205,7 @@ public class AppUI {
     private static void executeAction(String ch) {
         if (bloquejat) return;
         
-        // Convertir símbolos modernos a operaciones
+        // Convertir símbols moderns a operacions
         String operation = ch;
         if (ch.equals("÷")) operation = "/";
         if (ch.equals("×")) operation = "*";
@@ -222,7 +220,7 @@ public class AppUI {
                 operacio = "";
                 primerNumero = 0;
                 esperantSegonNumero = false;
-                // Restaurar el foco a la ventana después de limpiar
+                // Restaurar el focus a la finestra després de netejar
                 if (ventanaCalculadora != null) {
                     SwingUtilities.invokeLater(() -> {
                         ventanaCalculadora.requestFocus();
@@ -239,7 +237,7 @@ public class AppUI {
                     } else {
                         String nuevoTexto = texto.substring(0, texto.length() - 1);
                         pantalla.setText(nuevoTexto);
-                        // Verificar si después de borrar todavía hay punto decimal
+                        // Verificar si després d'esborrar encara hi ha punt decimal
                         puntUtilitzat = nuevoTexto.contains(".");
                     }
                 }
@@ -266,7 +264,7 @@ public class AppUI {
                 }
             }
             case "Ans" -> {
-                // Insertar el último resultado guardado
+                // Inserir l'últim resultat guardat
                 if (esperantSegonNumero) {
                     pantalla.setText("");
                     esperantSegonNumero = false;
@@ -275,10 +273,10 @@ public class AppUI {
                     pantalla.setText("");
                 }
                 
-                String resultadoStr = formatNumero(ultimoResultado);
+                String resultadoStr = formatNumero(ultimoResultat);
                 pantalla.setText(pantalla.getText() + resultadoStr);
                 
-                // Verificar si el resultado contiene punto decimal
+                // Verificar si el resultat conté punt decimal
                 if (resultadoStr.contains(".")) {
                     puntUtilitzat = true;
                 }
@@ -291,7 +289,7 @@ public class AppUI {
                     esperantSegonNumero = true;
                     puntUtilitzat = false;
                     
-                    // Mostrar operación con símbolos modernos
+                    // Mostrar operació amb símbols moderns
                     String displayOp = operation;
                     if (operation.equals("/")) displayOp = "÷";
                     if (operation.equals("*")) displayOp = "×";
@@ -328,17 +326,17 @@ public class AppUI {
                         return;
                     }
 
-                    // Mostrar en historial con símbolos modernos
+                    // Mostrar a l'historial amb símbols moderns
                     String displayOp = op;
                     if (op.equals("/")) displayOp = "÷";
                     if (op.equals("*")) displayOp = "×";
                     
                     historialModel.addElement(formatNumero(primerNumero) + " " + displayOp + " " + formatNumero(segonNumero) + " = " + formatNumero(res));
                     pantalla.setText(formatNumero(res));
-                    mostrarNuevoNumero = true;
+                    mostrarNouNombre = true;
 
-                    // Guardar el resultado en la variable Ans
-                    ultimoResultado = res;
+                    // Guardar el resultat a la variable Ans
+                    ultimoResultat = res;
 
                     primerNumero = res;
                     operacio = "";
@@ -354,9 +352,9 @@ public class AppUI {
                 // Números
                 if (bloquejat) return;
 
-                if (mostrarNuevoNumero){
+                if (mostrarNouNombre){
                     pantalla.setText("");
-                    mostrarNuevoNumero = false;
+                    mostrarNouNombre = false;
                 }else if (esperantSegonNumero) {
                     pantalla.setText("");
                     esperantSegonNumero = false;
@@ -366,6 +364,7 @@ public class AppUI {
                 }
                 pantalla.setText(pantalla.getText() + ch);
             }
+
         }
     }
     
@@ -375,22 +374,22 @@ public class AppUI {
         displayPanel.setBackground(DISPLAY_BG);
         displayPanel.setBorder(BorderFactory.createEmptyBorder(25, 20, 25, 20));
         
-        // Crear borde con efecto glow
+        // Crear vora amb efecte de brillantor
         displayPanel.setBorder(new EmptyBorder(25, 20, 25, 20) {
             @Override
             public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Glow exterior cyan
+                // Brillantor exterior cyan
                 g2.setColor(new Color(0, 255, 255, 50));
                 g2.fillRoundRect(x-2, y-2, width+4, height+4, 30, 30);
                 
-                // Fondo principal
+                // Fons principal
                 g2.setColor(DISPLAY_BG);
                 g2.fillRoundRect(x, y, width, height, 25, 25);
                 
-                // Borde brillante
+                // Vora brillant
                 g2.setColor(CYAN_GLOW);
                 g2.setStroke(new BasicStroke(2));
                 g2.drawRoundRect(x+1, y+1, width-2, height-2, 25, 25);
@@ -399,20 +398,20 @@ public class AppUI {
             }
         });
 
-        // Label de operación con estilo arcade
+        // Label d'operació amb estil arcade
         operacioLabel.setFont(new Font("Courier New", Font.BOLD, 18));
         operacioLabel.setForeground(CYAN_GLOW);
         operacioLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         operacioLabel.setPreferredSize(new Dimension(320, 30));
         displayPanel.add(operacioLabel);
 
-        // Espaciado
+        // Espaiat
         displayPanel.add(Box.createVerticalStrut(10));
 
-        // Pantalla principal con efecto retro
+        // Pantalla principal amb efecte retro
         pantalla.setEditable(false);
         pantalla.setHorizontalAlignment(JTextField.RIGHT);
-        pantalla.setFont(new Font("Courier New", Font.BOLD, 52)); // Fuente pixelada más grande
+        pantalla.setFont(new Font("Courier New", Font.BOLD, 52)); // Font pixelada més gran
         pantalla.setText("0");
         pantalla.setBackground(DISPLAY_BG);
         pantalla.setForeground(TEXT_WHITE);
@@ -439,24 +438,24 @@ public class AppUI {
         historialPanel.setBackground(ARCADE_BG);
         historialPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        // ComboBox del historial con funcionalidad interactiva
+        // ComboBox de l'historial amb funcionalitat interactiva
         historialComboBox.setPreferredSize(new Dimension(240, 35));
         historialComboBox.setFont(new Font("Courier New", Font.BOLD, 12));
         historialComboBox.setBackground(DISPLAY_BG);
         historialComboBox.setForeground(CYAN_GLOW);
         historialComboBox.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         
-        // Agregar listener para hacer el historial interactivo
+        // Afegir listener per fer l'historial interactiu
         historialComboBox.addActionListener(e -> {
             String selectedItem = (String) historialComboBox.getSelectedItem();
             if (selectedItem != null && !selectedItem.isEmpty()) {
-                cargarOperacionDelHistorial(selectedItem);
+                carregarOperacioDelHistorial(selectedItem);
             }
         });
         
         historialPanel.add(historialComboBox, BorderLayout.CENTER);
 
-        // Botón de limpiar historial estilo arcade
+        // Botó de netejar historial estil arcade
         RoundedButton botoClr = new RoundedButton("CLEAR");
         botoClr.setBackgroundColor(RED_BUTTON);
         botoClr.setForeground(TEXT_WHITE);
@@ -464,7 +463,7 @@ public class AppUI {
         botoClr.setPreferredSize(new Dimension(80, 35));
         botoClr.addActionListener(e -> {
             historialModel.removeAllElements();
-            // Restaurar el foco después de limpiar historial
+            // Restaurar el focus després de netejar historial
             if (ventanaCalculadora != null) {
                 SwingUtilities.invokeLater(() -> {
                     ventanaCalculadora.requestFocus();
@@ -482,56 +481,56 @@ public class AppUI {
             String ch = botons[i];
             RoundedButton b = new RoundedButton(ch);
             
-            // Configurar colores estilo arcade según el tipo de botón
+            // Configurar colors estil arcade segons el tipus de botó
             if ("789456123".contains(ch)) {
-                // Números 1-9: Azul vibrante
+                // Números 1-9: Blau vibrant
                 b.setBackgroundColor(BLUE_BUTTON);
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals("0")) {
-                // Número 0: Azul más oscuro
+                // Número 0: Blau més fosc
                 b.setBackgroundColor(DARK_BLUE);
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals("C")) {
-                // Clear: Rojo brillante
+                // Clear: Vermell brillant
                 b.setBackgroundColor(RED_BUTTON);
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals("←")) {
-                // Borrar: Verde lima
+                // Esborrar: Taronja fosc
                 b.setBackgroundColor(new Color(244, 70, 17));
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals("±")) {
-                // Plus/Minus: Rosa vibrante
+                // Plus/Minus: Rosa vibrant
                 b.setBackgroundColor(PINK_BUTTON);
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals("÷") || ch.equals("×") || ch.equals("-") || ch.equals("+")) {
-                // Operadores: Naranja brillante
+                // Operadors: Taronja brillant
                 b.setBackgroundColor(ORANGE_BUTTON);
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals("=")) {
-                // Igual: Verde neón
+                // Igual: Verd neó
                 b.setBackgroundColor(GREEN_BUTTON);
                 b.setForeground(TEXT_WHITE);
             } else if (ch.equals(".")) {
-                // Punto decimal: Amarillo brillante
+                // Punt decimal: Groc brillant
                 b.setBackgroundColor(new Color(255, 215, 0));
                 b.setForeground(TEXT_BLACK);
             } else if (ch.equals("Ans")) {
-                // Ans: Morado/Violeta
+                // Ans: Verd fosc
                 b.setBackgroundColor(DARK_GREEN_BUTTON);
                 b.setForeground(TEXT_WHITE);
             }
 
-            // El botón 0 ocupa dos columnas
+            // El botó 0 ocupa dues columnes
             if (ch.equals("0")) {
-                b.setPreferredSize(new Dimension(174, 75)); // Ancho doble + gap ajustado
+                b.setPreferredSize(new Dimension(174, 75)); // Amplada doble + gap ajustat
             }
             
             panellBotons.add(b);
 
-            // Agregar funcionalidad
+            // Afegir funcionalitat
             b.addActionListener(e -> {
                 executeAction(ch);
-                // Restaurar el foco después de cualquier acción de botón
+                // Restaurar el focus després de qualsevol acció de botó
                 if (ventanaCalculadora != null) {
                     SwingUtilities.invokeLater(() -> {
                         ventanaCalculadora.requestFocus();
@@ -547,7 +546,7 @@ public class AppUI {
             return "Error";
         }
         
-        // Formatear números grandes con notación científica si es necesario
+        // Formatar números grans amb notació científica si és necessari
         if (Math.abs(v) >= 1e10) {
             return String.format("%.2e", v);
         }
@@ -555,16 +554,15 @@ public class AppUI {
         return v == (long) v ? String.format("%d", (long) v) : String.valueOf(v);
     }
 
-    private static void cargarOperacionDelHistorial(String operacionHistorial) {
+    private static void carregarOperacioDelHistorial(String operacionHistorial) {
         try {
-
-            // Manejar operaciones normales
+            // Gestionar operacions normals
             String[] partes = operacionHistorial.split(" = ");
             if (partes.length == 2) {
                 String operacionCompleta = partes[0].trim();
                 String resultado = partes[1].trim();
                 
-                // Buscar el operador
+                // Buscar l'operador
                 String operador = "";
                 int posOperador = -1;
                 String[] operadores = {"÷", "×", "+", "-"};
@@ -578,16 +576,16 @@ public class AppUI {
                 }
                 
                 if (posOperador > 0) {
-                    // Extraer primer y segundo número
+                    // Extreure primer i segon número
                     String primerNum = operacionCompleta.substring(0, posOperador).trim();
                     String segundoNum = operacionCompleta.substring(posOperador + 3).trim();
                     
-                    // Convertir operador a símbolo interno
+                    // Convertir operador a símbol intern
                     String opInterno = operador;
                     if (operador.equals("÷")) opInterno = "/";
                     if (operador.equals("×")) opInterno = "*";
                     
-                    // Establecer estado de la calculadora
+                    // Establir estat de la calculadora
                     try {
                         primerNumero = Double.parseDouble(primerNum);
                         pantalla.setText(segundoNum);
@@ -596,33 +594,33 @@ public class AppUI {
                         esperantSegonNumero = false;
                         puntUtilitzat = segundoNum.contains(".");
                         
-                        // Permitir modificación inmediata
+                        // Permetre modificació immediata
                         bloquejat = false;
                         
                     } catch (NumberFormatException ex) {
-                        // Si no se pueden parsear los números, al menos mostrar el resultado
+                        // Si no es poden parsejar els números, almenys mostrar el resultat
                         pantalla.setText(resultado);
-                        resetearEstado();
+                        resetejarEstat();
                     }
                 } else {
-                    // Si no se puede parsear la operación, mostrar solo el resultado
+                    // Si no es pot parsejar l'operació, mostrar només el resultat
                     pantalla.setText(resultado);
-                    resetearEstado();
+                    resetejarEstat();
                 }
             }
         } catch (Exception ex) {
-            // En caso de cualquier error, resetear
-            resetearEstado();
+            // En cas de qualsevol error, restablir
+            resetejarEstat();
         }
     }
     
-    private static void resetearEstado() {
+    private static void resetejarEstat() {
         operacio = "";
         primerNumero = 0;
         esperantSegonNumero = false;
         puntUtilitzat = false;
         bloquejat = false;
         operacioLabel.setText("");
-        // No resetear ultimoResultado para mantener el valor de Ans
+        // No restablir ultimoResultado per mantenir el valor d'Ans
     }
 }
