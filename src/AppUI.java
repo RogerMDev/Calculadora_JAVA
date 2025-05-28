@@ -96,7 +96,7 @@ public class AppUI {
         }
     }
 
-    private static JPanel createDisplayPanel() {
+    private static JPanel crearDisplayPanel() {
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
         displayPanel.setBackground(DISPLAY_BG);
@@ -152,8 +152,6 @@ public class AppUI {
         return displayPanel;
     }
 
-
-
     // Variable global per mantenir referència a la finestra
     private static JFrame displayCalculadora;
     
@@ -171,7 +169,7 @@ public class AppUI {
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // Panell de la pantalla
-        JPanel displayPanel = createDisplayPanel();
+        JPanel displayPanel = crearDisplayPanel();
         mainPanel.add(displayPanel, BorderLayout.NORTH);
 
         // Panell de botons
@@ -192,7 +190,7 @@ public class AppUI {
         displayCalculadora.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
-                handleKeyPress(e);
+                controlKeyPress(e);
             }
 
             @Override
@@ -210,7 +208,7 @@ public class AppUI {
         displayCalculadora.requestFocus();
     }
     
-    private static void handleKeyPress(KeyEvent e) {
+    private static void controlKeyPress(KeyEvent e) {
         if (bloquejat) return;
         
         char keyChar = e.getKeyChar();
@@ -255,11 +253,11 @@ public class AppUI {
         
         // Executar l'acció si s'ha trobat una tecla vàlida
         if (!action.isEmpty()) {
-            executeAction(action);
+            executarAccio(action);
         }
     }
     
-    private static void executeAction(String ch) {
+    private static void executarAccio(String ch) {
         if (bloquejat) return;
         
         // Convertir símbols moderns a operacions
@@ -379,7 +377,7 @@ public class AppUI {
                     };
 
                     if (Double.isNaN(res)) {
-                        pantalla.setText("Error");
+                        pantalla.setText("Infinit");
                         return;
                     }
 
@@ -423,6 +421,15 @@ public class AppUI {
             }
 
         }
+    }
+
+        private static JPanel createButtonPanel() {
+        panellBotons.setLayout(new GridLayout(5, 4, 12, 12));
+        panellBotons.setBackground(ARCADE_BG);
+        panellBotons.setBorder(new EmptyBorder(25, 0, 25, 0));
+
+        afegirBotonsIFunc();
+        return panellBotons;
     }
     
     
@@ -480,7 +487,7 @@ public class AppUI {
 
             // Afegir funcionalitat
             b.addActionListener(e -> {
-                executeAction(ch);
+                executarAccio(ch);
                 // Restaurar el focus després de qualsevol acció de botó
                 if (displayCalculadora != null) {
                     SwingUtilities.invokeLater(() -> {
@@ -563,15 +570,6 @@ public class AppUI {
             // En cas de qualsevol error, reestablir
             resetejarEstat();
         }
-    }
-
-        private static JPanel createButtonPanel() {
-        panellBotons.setLayout(new GridLayout(5, 4, 12, 12));
-        panellBotons.setBackground(ARCADE_BG);
-        panellBotons.setBorder(new EmptyBorder(25, 0, 25, 0));
-
-        afegirBotonsIFunc();
-        return panellBotons;
     }
 
     private static JPanel createHistorialPanel() {
